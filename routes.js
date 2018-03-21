@@ -8,7 +8,7 @@ module.exports = (app) => {
   app.get('/history', async (req, res) => {
     try {
       // TODO: Return the whole history, pagination not supported for this test
-      const data = await History.find();
+      const data = await History.find().sort('-date');
       return res.status(200).send({ success: true, message: 'Search history fetched successfully', data });
     } catch (err) {
       return res.status(500).send({ success: false, message: 'Error fetching the search history' });
@@ -17,18 +17,19 @@ module.exports = (app) => {
 
   // Save history
   app.post('/history', async (req, res) => {
-    if (!req.body.city || !req.body.country) {
+    if (!req.body.id || !req.body.name || !req.body.country) {
       return res.status(500).send({ success: false, message: 'Missing data' });
     }
 
     const search = new History({
-      city: req.body.city,
+      id: req.body.id,
+      name: req.body.name,
       country: req.body.country,
     });
 
     try {
       const newSearch = await search.save();
-      return res.status(200).send({ success: true, message: 'Search history saved' });
+      return res.status(200).send({ success: true, data: newSearch, message: 'Search history saved' });
     } catch (err) {
       return res.status(500).send(err);
     }
